@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AISpeak Icon Generator</title>
+<style>body{font:16px/1.6 system-ui;background:#0f1226;color:#e8eaff;max-width:640px;margin:auto;padding:24px}button{min-height:44px;padding:0 20px;border:0;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#8b5cf6);color:#04121a;font-weight:700;cursor:pointer}canvas{border-radius:16px;margin:8px}code{color:#22d3ee}</style></head>
+<body><h1>AISpeak Icon Generator</h1>
+<p>Click once to download every icon and screenshot. Then place them as shown, commit to <code>esp046-cyber/aispeak</code>. Your browser may ask to allow multiple downloads.</p>
+<button id="go">Generate &amp; download all</button><div id="prev"></div><pre id="log"></pre>
+<script>
+const bars=[.25,.55,1,.5,.2];
+function icon(size,mask){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+ const g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#22d3ee');g.addColorStop(1,'#8b5cf6');
+ if(mask){x.fillStyle='#0f1226';x.fillRect(0,0,size,size)}else{x.fillStyle='#0f1226';x.beginPath();x.roundRect(0,0,size,size,size*.22);x.fill()}
+ const area=size*(mask?.46:.62),bw=area/9,gap=bw,tot=5*bw+4*gap,x0=(size-tot)/2;x.fillStyle=g;
+ bars.forEach((h,i)=>{const bh=area*h;x.beginPath();x.roundRect(x0+i*(bw+gap),(size-bh)/2,bw,bh,bw/2);x.fill()});return c}
+function shot(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');
+ x.fillStyle='#0f1226';x.fillRect(0,0,w,h);const s=Math.min(w,h)*.28;x.drawImage(icon(s,false),(w-s)/2,h*.22);
+ x.fillStyle='#e8eaff';x.textAlign='center';x.font='700 '+Math.min(w,h)*.08+'px system-ui';x.fillText('AISpeak',w/2,h*.22+s+Math.min(w,h)*.12);
+ x.fillStyle='#a9afd6';x.font=Math.min(w,h)*.04+'px system-ui';x.fillText('Type it. Hear it. Naturally.',w/2,h*.22+s+Math.min(w,h)*.19);return c}
+const blob=c=>new Promise(r=>c.toBlob(r,'image/png'));
+async function ico(){const b=new Uint8Array(await (await blob(icon(32))).arrayBuffer()),h=new Uint8Array(22+b.length),d=new DataView(h.buffer);
+ d.setUint16(2,1,true);d.setUint16(4,1,true);h[6]=32;h[7]=32;d.setUint16(10,1,true);d.setUint16(12,32,true);d.setUint32(14,b.length,true);d.setUint32(18,22,true);h.set(b,22);return new Blob([h],{type:'image/x-icon'})}
+function save(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();document.getElementById('log').textContent+=n+'\n';return new Promise(r=>setTimeout(r,300))}
+document.getElementById('go').onclick=async()=>{
+ document.getElementById('log').textContent='Save into these folders:\nicons/: icon-*.png, favicon-16x16.png, favicon-32x32.png\nscreenshots/: screenshot-*.png\nroot: apple-touch-icon.png, favicon.ico\n\n';
+ for(const s of [72,96,128,144,152,192,384,512]){const c=icon(s);prev.append(c);c.style.width='64px';await save(await blob(c),'icon-'+s+'.png')}
+ for(const s of [192,512])await save(await blob(icon(s,true)),'icon-maskable-'+s+'.png');
+ for(const s of [16,32])await save(await blob(icon(s)),'favicon-'+s+'x'+s+'.png');
+ await save(await blob(icon(180)),'apple-touch-icon.png');await save(await ico(),'favicon.ico');
+ await save(await blob(shot(540,960)),'screenshot-mobile.png');await save(await blob(shot(1280,720)),'screenshot-desktop.png')};
+</script></body></html>
